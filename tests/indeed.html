@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en" data-jobproof-platform="indeed">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>JobProof — Indeed adapter practice</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1100px; margin: 32px auto; padding: 0 20px; color: #17202a; }
+        .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+        .job_seen_beacon, #job-full-details { padding: 20px; border: 1px solid #aab4bf; border-radius: 10px; margin-bottom: 16px; }
+        .jobTitle { margin-top: 0; }
+        button { padding: 8px 12px; margin: 4px 8px 4px 0; cursor: pointer; }
+        #demo-status { min-height: 2em; }
+        @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <h1>Indeed adapter practice</h1>
+    <p>These fictional listings use representative Indeed selectors. This page is a local test fixture.</p>
+    <p>First expect yellow results with 0 points because only snippets are available. Select a title to supply its full description and an example application destination.</p>
+    <button id="load-job" type="button">Load another result</button>
+    <button id="change-job" type="button" disabled>Add suspicious signals to selected job</button>
+    <p id="demo-status" role="status">Select a job title to open its details.</p>
+
+    <div class="layout">
+        <main id="results" aria-label="Fictional search results">
+            <article class="job_seen_beacon" data-jk="fixture_microsoft">
+                <h2 class="jobTitle"><a class="jcs-JobTitle" data-jk="fixture_microsoft" href="https://www.indeed.com/viewjob?jk=fixture_microsoft"><span>Software Engineer</span></a></h2>
+                <p data-testid="company-name">Microsoft</p>
+                <div class="job-snippet">Build and test cloud applications with the engineering team.</div>
+            </article>
+            <article class="job_seen_beacon" data-jk="fixture_cisco">
+                <h2 class="jobTitle"><a class="jcs-JobTitle" data-jk="fixture_cisco" href="https://www.indeed.com/viewjob?jk=fixture_cisco"><span>Security Analyst</span></a></h2>
+                <p data-testid="company-name">Cisco</p>
+                <div class="job-snippet">Investigate network incidents and improve security monitoring.</div>
+            </article>
+        </main>
+        <aside aria-label="Selected job">
+            <section id="job-full-details" hidden>
+                <h2 class="jobsearch-JobInfoHeader-title"></h2>
+                <p data-testid="inlineHeader-companyName"></p>
+                <div id="jobDescriptionText"></div>
+                <a data-testid="apply-button" href="https://careers.microsoft.com">Example application destination</a>
+            </section>
+        </aside>
+    </div>
+
+    <template id="dynamic-result">
+        <article class="job_seen_beacon">
+            <h2 class="jobTitle"><a class="jcs-JobTitle"><span></span></a></h2>
+            <p data-testid="company-name">Cisco</p>
+            <div class="job-snippet">Review network alerts and document incident investigations.</div>
+        </article>
+    </template>
+    <script src="indeed.js"></script>
+</body>
+</html>

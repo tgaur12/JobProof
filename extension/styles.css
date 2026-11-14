@@ -1,0 +1,78 @@
+.jobproof-card[data-jobproof-risk="green"] {
+    border-inline-start: 6px solid #207449;
+    background-color: #f0faf4;
+}
+
+.jobproof-card[data-jobproof-risk="yellow"] {
+    border-inline-start: 6px solid #a56800;
+    background-color: #fff9e8;
+}
+
+.jobproof-card[data-jobproof-risk="red"] {
+    border-inline-start: 6px solid #b13232;
+    background-color: #fff2f2;
+}
+
+.jobproof-panel {
+    margin-block-start: 16px;
+    padding-block-start: 12px;
+    border-block-start: 1px solid #cbd5e1;
+    color: #233044;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.jobproof-status {
+    margin: 0 0 8px;
+    font-weight: 700;
+}
+
+.jobproof-details summary {
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.jobproof-details ul {
+    margin: 10px 0;
+    padding-inline-start: 22px;
+}
+
+.jobproof-details li + li {
+    margin-block-start: 8px;
+}
+
+.jobproof-evidence {
+    display: block;
+    margin-block-start: 3px;
+    color: #4b5563;
+    overflow-wrap: anywhere;
+}
+
+.jobproof-pending,
+.jobproof-notice {
+    margin: 10px 0;
+    color: #4b5563;
+    font-size: 13px;
+}
+
+.jobproof-retry {
+    margin-block-start: 10px;
+    padding: 5px 12px;
+    border: 1px solid #94a3b8;
+    border-radius: 5px;
+    background: #fff;
+    color: #233044;
+    font: inherit;
+    cursor: pointer;
+}
+
+.jobproof-retry:focus-visible,
+.jobproof-details summary:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 3px;
+}
+
+.jobproof-retry:disabled {
+    cursor: wait;
+}

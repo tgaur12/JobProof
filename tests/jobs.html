@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JobProof Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+        }
+
+        .job-card {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Available Jobs</h1>
+    <p>Fictional listings for testing the JobProof extension.</p>
+    <p>Load another listing, then change it to test automatic analysis.</p>
+    <button id="load-job" type="button">Load another job</button>
+    <button id="change-job" type="button" disabled>Change loaded job</button>
+    <p id="demo-status" role="status"></p>
+
+    <div class="job-card">
+        <h2 class="job-title">Software Engineer</h2>
+        <p class="company">Microsoft</p>
+        <p class="description">
+            Develop cloud applications.
+            Bachelor's degree required.
+        </p>
+        <p class="recruiter-email"><a href="mailto:hiring@microsoft.com">hiring@microsoft.com</a></p>
+        <a class="apply-link"
+           href="https://careers.microsoft.com">
+            Apply Now
+        </a>
+    </div>
+
+    <div class="job-card">
+        <h2 class="job-title">Remote Data Entry</h2>
+        <p class="company">QuickMoney Careers</p>
+        <p class="description">
+            Earn $150,000 with no experience.
+            Immediate hiring. Pay $200 upfront
+            for equipment.
+        </p>
+        <a class="apply-link"
+           href="https://quickmoney.example">
+            Apply Now
+        </a>
+    </div>
+
+    <div class="job-card">
+        <h2 class="job-title">Security Analyst</h2>
+        <p class="company">Cisco</p>
+        <p class="description">
+            Monitor network traffic and investigate
+            security incidents.
+        </p>
+        <p class="recruiter-email"><a href="mailto:jobs@cisco.com">jobs@cisco.com</a></p>
+        <a class="apply-link"
+           href="https://jobs.cisco.com">
+            Apply Now
+        </a>
+    </div>
+
+    <div class="job-card">
+        <h2 class="job-title">Project Coordinator</h2>
+        <p class="company">Microsoft</p>
+        <p class="description">Coordinate project schedules and team communications.</p>
+        <p class="recruiter-email"><a href="mailto:recruiter@gmail.com">recruiter@gmail.com</a></p>
+        <a class="apply-link" href="https://careers.microsoft.com">Apply Now</a>
+    </div>
+
+    <div id="loaded-jobs"></div>
+    <template id="dynamic-job">
+        <div class="job-card">
+            <h2 class="job-title">Security Analyst</h2>
+            <p class="company">Cisco</p>
+            <p class="description">Investigate network incidents and improve security monitoring.</p>
+            <p class="recruiter-email"><a href="mailto:jobs@cisco.com">jobs@cisco.com</a></p>
+            <a class="apply-link" href="https://jobs.cisco.com">Apply Now</a>
+        </div>
+    </template>
+    <script src="jobs.js"></script>
+</body>
+</html>
