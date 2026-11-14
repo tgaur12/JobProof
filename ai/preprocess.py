@@ -8,6 +8,8 @@ TEXT_COLS = ['title', 'company_profile', 'description', 'requirements', 'benefit
 
 
 def clean_text(text):
+    if not isinstance(text, str):
+        return ""
     """Decode HTML entities, strip tags, collapse whitespace."""
     text = html.unescape(text)
     text = re.sub(r'<[^>]+>', ' ', text)
