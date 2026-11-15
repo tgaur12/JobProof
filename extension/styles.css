@@ -14,6 +14,10 @@
 }
 
 .jobproof-panel {
+    /* Place our controls above links stretched across the host job card. */
+    position: relative;
+    z-index: 2;
+    pointer-events: auto;
     margin-block-start: 16px;
     padding-block-start: 12px;
     border-block-start: 1px solid #cbd5e1;

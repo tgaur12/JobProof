@@ -274,6 +274,86 @@ async function test(name, callback) {
         assert.ok(page.extract("job002").job.description.includes("second job"));
     }));
 
+    await test("a clickable-card capture handler reproduces the native disclosure default-action failure", () => withPage({}, page => {
+        const disclosure = page.document.createElement("details");
+        disclosure.innerHTML = "<summary>Native disclosure</summary><p>Explanation</p>";
+        page.card().append(disclosure);
+        page.card().addEventListener("click", event => event.preventDefault(), true);
+        disclosure.querySelector("summary").click();
+        assert.equal(disclosure.open, false, "Ancestor preventDefault cancels the native summary toggle.");
+    }));
+
+    await test("owned explanation clicks open and close despite cancelled defaults without activating the card", () => withPage({ integrated: true }, async page => {
+        await ready(page);
+        const card = page.card();
+        const disclosure = card.querySelector(".jobproof-details");
+        const summary = disclosure.querySelector("summary");
+        let cardClicks = 0;
+        card.addEventListener("click", event => event.preventDefault(), true);
+        card.addEventListener("click", () => { cardClicks += 1; });
+        summary.click();
+        assert.equal(disclosure.open, true);
+        summary.click();
+        assert.equal(disclosure.open, false);
+        assert.equal(cardClicks, 0, "Explanation clicks must not activate the clickable card.");
+        await pause(250);
+        assert.equal(page.requests.length, 1, "Opening or closing explanations must not request analysis.");
+
+        card.querySelector("a.jcs-JobTitle").click();
+        assert.equal(cardClicks, 1, "The original title must still receive its card click handler.");
+    }));
+
+    await test("explanation keyboard activation survives cancelled defaults and ignores held-key repeats", () => withPage({ integrated: true }, async page => {
+        await ready(page);
+        const card = page.card();
+        const disclosure = card.querySelector(".jobproof-details");
+        const summary = disclosure.querySelector("summary");
+        let cardKeyEvents = 0;
+        for (const type of ["keydown", "keyup"]) {
+            card.addEventListener(type, event => event.preventDefault(), true);
+            card.addEventListener(type, () => { cardKeyEvents += 1; });
+        }
+        const key = (type, value, repeat = false) => summary.dispatchEvent(new page.dom.window.KeyboardEvent(type, {
+            key: value, repeat, bubbles: true, cancelable: true
+        }));
+        summary.focus();
+        assert.equal(page.document.activeElement, summary);
+        key("keydown", "Enter");
+        assert.equal(disclosure.open, true);
+        key("keydown", "Enter", true);
+        assert.equal(disclosure.open, true, "Holding Enter must not repeatedly toggle the explanation.");
+        key("keyup", "Enter");
+        assert.equal(disclosure.open, true);
+        key("keydown", " ");
+        assert.equal(disclosure.open, false);
+        key("keydown", " ", true);
+        assert.equal(disclosure.open, false, "Holding Space must not repeatedly toggle the explanation.");
+        key("keyup", " ");
+        assert.equal(disclosure.open, false);
+        assert.equal(cardKeyEvents, 0);
+        await pause(250);
+        assert.equal(page.requests.length, 1);
+    }));
+
+    await test("panel pointer events stay isolated while Retry sends exactly one analysis request", () => withPage({ integrated: true }, async page => {
+        await ready(page);
+        const card = page.card();
+        const retry = card.querySelector(".jobproof-retry");
+        let cardEvents = 0;
+        for (const type of ["click", "dblclick", "pointerdown", "pointerup", "mousedown", "mouseup"]) {
+            card.addEventListener(type, () => { cardEvents += 1; });
+        }
+        card.addEventListener("click", event => event.preventDefault(), true);
+        for (const type of ["dblclick", "pointerdown", "pointerup", "mousedown", "mouseup"]) {
+            retry.dispatchEvent(new page.dom.window.Event(type, { bubbles: true, cancelable: true }));
+        }
+        retry.click();
+        await ready(page, 2);
+        await pause(250);
+        assert.equal(page.requests.length, 2, "Retry must send only one additional analysis request.");
+        assert.equal(cardEvents, 0);
+    }));
+
     await test("initial analysis and repeated injection create one panel and request per result", () => withPage({ integrated: true, markup: cardMarkup() + cardMarkup({ id: "job002" }) }, async page => {
         await ready(page, 2);
         assert.equal(page.document.querySelectorAll(".jobproof-panel").length, 2);

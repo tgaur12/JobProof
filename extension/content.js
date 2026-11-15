@@ -67,6 +67,19 @@
         details.className = "jobproof-details";
         const summary = document.createElement("summary");
         summary.textContent = "Why this result";
+        summary.addEventListener("click", event => {
+            // Clickable job cards can cancel the browser's default disclosure action.
+            event.preventDefault();
+            event.stopPropagation();
+            details.open = !details.open;
+        });
+        summary.addEventListener("keydown", event => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                event.stopPropagation();
+                if (!event.repeat) details.open = !details.open;
+            }
+        });
         details.append(summary);
 
         if (result.findings.length > 0) {
@@ -179,6 +192,15 @@
         const panel = document.createElement("section");
         panel.className = "jobproof-panel";
         panel.setAttribute("aria-label", "JobProof risk assessment");
+        // Keep clicks on our controls from selecting or navigating the host card.
+        for (const eventType of ["click", "dblclick", "pointerdown", "pointerup", "mousedown", "mouseup"]) {
+            panel.addEventListener(eventType, event => event.stopPropagation());
+        }
+        for (const eventType of ["keydown", "keyup"]) {
+            panel.addEventListener(eventType, event => {
+                if (event.key === "Enter" || event.key === " ") event.stopPropagation();
+            });
+        }
 
         const status = document.createElement("p");
         status.className = "jobproof-status";
