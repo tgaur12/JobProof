@@ -1,92 +1,117 @@
-
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-    <title>JobProof Test Page</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 40px auto;
-        }
-
-        .job-card {
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 15px 0;
-        }
-    </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#143c34">
+    <title>JobProof · Look closer before you apply</title>
+    <link rel="stylesheet" href="jobs.css">
+    <script src="jobs.js" defer></script>
 </head>
 <body>
+    <a class="skip-link" href="#listings">Skip to job listings</a>
+    <div class="page-shell">
+        <header class="site-header">
+            <a class="wordmark" href="#top" aria-label="JobProof home"><span class="brand-mark" aria-hidden="true">J</span>JobProof<span class="wordmark-period" aria-hidden="true">.</span></a>
+            <span class="header-label">Recruitment risk, made visible</span>
+            <span class="demo-label">Hackathon demo</span>
+        </header>
 
-    <h1>Available Jobs</h1>
-    <p>Fictional listings for testing the JobProof extension.</p>
-    <p>Load another listing, then change it to test automatic analysis.</p>
-    <button id="load-job" type="button">Load another job</button>
-    <button id="change-job" type="button" disabled>Change loaded job</button>
-    <p id="demo-status" role="status"></p>
+        <main id="top">
+            <section class="hero" aria-labelledby="hero-title">
+                <div class="hero-copy">
+                    <p class="eyebrow"><span aria-hidden="true"></span> A second look at your next opportunity</p>
+                    <h1 id="hero-title">Look closer<br>before you apply.</h1>
+                    <p class="hero-description">A familiar company name can hide an unfamiliar risk. JobProof brings the application link, recruiter email, and recruitment language into one explainable assessment.</p>
+                    <div class="hero-meta"><span>Chrome extension</span><span>Live security analysis</span><span>Explainable findings</span></div>
+                </div>
+                <aside class="guide" aria-labelledby="guide-title">
+                    <p class="eyebrow">Read the signals</p>
+                    <h2 id="guide-title">A color is a starting point.</h2>
+                    <ul class="risk-legend">
+                        <li><span class="legend-dot legend-green" aria-hidden="true"></span><div><strong>Lower risk</strong><span>Fewer warning signals detected.</span></div></li>
+                        <li><span class="legend-dot legend-yellow" aria-hidden="true"></span><div><strong>Needs verification</strong><span>Check the details before proceeding.</span></div></li>
+                        <li><span class="legend-dot legend-red" aria-hidden="true"></span><div><strong>High risk</strong><span>Serious warning signals need attention.</span></div></li>
+                    </ul>
+                    <p class="guide-note">Green is never proof that a job is legitimate.</p>
+                </aside>
+            </section>
 
-    <div class="job-card">
-        <h2 class="job-title">Software Engineer</h2>
-        <p class="company">Microsoft</p>
-        <p class="description">
-            Develop cloud applications.
-            Bachelor's degree required.
-        </p>
-        <p class="recruiter-email"><a href="mailto:hiring@microsoft.com">hiring@microsoft.com</a></p>
-        <a class="apply-link"
-           href="https://careers.microsoft.com">
-            Apply Now
-        </a>
+            <div class="fictional-notice" role="note"><span class="notice-symbol" aria-hidden="true">i</span><p><strong>Fictional listings. Real analysis.</strong> These examples use company names for demonstration only and are not actual vacancies. Application and email links are disabled.</p></div>
+
+            <section id="listings" class="listings-section" aria-labelledby="listings-title">
+                <div class="section-heading"><div><p class="eyebrow">The live comparison</p><h2 id="listings-title">Three listings. Different signals.</h2></div><p>Expand “Why this result” on a JobProof panel to see the evidence.</p></div>
+                <div class="jobs-grid">
+                    <article class="job-card" aria-labelledby="cisco-title">
+                        <div class="card-topline"><span class="scenario-number">01 / SAMPLE LISTING</span><span class="company-avatar" aria-hidden="true">C</span></div>
+                        <p class="company">Cisco</p>
+                        <h3 class="job-title" id="cisco-title">Security Analyst</h3>
+                        <p class="job-meta">Security operations <span aria-hidden="true">·</span> Full time</p>
+                        <p class="description">Monitor network traffic, investigate security incidents, and improve detection workflows. Collaborate with the security operations team and document your findings.</p>
+                        <details class="role-details"><summary>Role details</summary><p><strong>Company profile</strong></p><p class="company-profile">An enterprise networking and security organization building infrastructure and collaboration products for businesses.</p><p><strong>Requirements</strong></p><p class="requirements">Experience with network monitoring, incident triage, TCP/IP fundamentals, and clear technical documentation. Familiarity with SIEM tools is helpful.</p><p><strong>Benefits</strong></p><p class="benefits">Competitive salary, medical and dental coverage, paid time off, and professional development.</p></details>
+                        <div class="source-details">
+                            <div class="source-field"><span class="field-label">Application destination</span><a class="apply-link" href="https://jobs.cisco.com">https://jobs.cisco.com</a></div>
+                            <div class="source-field"><span class="field-label">Recruiter email</span><p class="recruiter-email"><a href="mailto:jobs@cisco.com">jobs@cisco.com</a></p></div>
+                        </div>
+                        <p class="analysis-placeholder">JobProof will display its live assessment here.</p>
+                    </article>
+                    <article class="job-card" aria-labelledby="coordinator-title">
+                        <div class="card-topline"><span class="scenario-number">02 / SAMPLE LISTING</span><span class="company-avatar" aria-hidden="true">M</span></div>
+                        <p class="company">Microsoft</p>
+                        <h3 class="job-title" id="coordinator-title">Project Coordinator</h3>
+                        <p class="job-meta">Project operations <span aria-hidden="true">·</span> Full time</p>
+                        <p class="description">Coordinate project schedules, prepare progress updates, and support communication across project teams. Help keep milestones and shared documentation up to date.</p>
+                        <details class="role-details"><summary>Role details</summary><p><strong>Company profile</strong></p><p class="company-profile">An enterprise software and cloud services organization supporting businesses and individual customers.</p><p><strong>Requirements</strong></p><p class="requirements">Experience coordinating schedules, maintaining project documentation, and communicating with cross-functional teams. Working knowledge of spreadsheets and presentation tools.</p><p><strong>Benefits</strong></p><p class="benefits">Competitive salary, health coverage, paid leave, and access to professional learning resources.</p></details>
+                        <div class="source-details">
+                            <div class="source-field"><span class="field-label">Application destination</span><a class="apply-link" href="https://careers.microsoft.com">https://careers.microsoft.com</a></div>
+                            <div class="source-field"><span class="field-label">Recruiter email</span><p class="recruiter-email"><a href="mailto:recruiter@gmail.com">recruiter@gmail.com</a></p></div>
+                        </div>
+                        <p class="analysis-placeholder">JobProof will display its live assessment here.</p>
+                    </article>
+                    <article class="job-card" aria-labelledby="payroll-title">
+                        <div class="card-topline"><span class="scenario-number">03 / SAMPLE LISTING</span><span class="company-avatar" aria-hidden="true">M</span></div>
+                        <p class="company">Microsoft</p>
+                        <h3 class="job-title" id="payroll-title">Remote Payroll Assistant</h3>
+                        <p class="job-meta">Payroll operations <span aria-hidden="true">·</span> Remote</p>
+                        <p class="description">Process employee payroll records and coordinate remote onboarding. Pay $200 upfront for equipment before starting. Share your banking password to activate payroll access.</p>
+                        <details class="role-details"><summary>Role details</summary><p><strong>Company profile</strong></p><p class="company-profile">An enterprise software and cloud services organization supporting businesses and individual customers.</p><p><strong>Requirements</strong></p><p class="requirements">Basic spreadsheet skills, accurate data entry, and availability to work remotely with payroll records.</p><p><strong>Benefits</strong></p><p class="benefits">Flexible remote schedule and paid training.</p></details>
+                        <div class="source-details">
+                            <div class="source-field"><span class="field-label">Application destination</span><a class="apply-link" href="http://192.0.2.1/apply">http://192.0.2.1/apply</a></div>
+                            <div class="source-field"><span class="field-label">Recruiter email</span><p class="recruiter-email"><a href="mailto:jobs@micros0ft.com">jobs@micros0ft.com</a></p></div>
+                        </div>
+                        <p class="analysis-placeholder">JobProof will display its live assessment here.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="dynamic-section" aria-labelledby="dynamic-title">
+                <div class="dynamic-heading"><div><p class="eyebrow">Keep the page moving</p><h2 id="dynamic-title">Watch a listing change.</h2><p>Load a new example, then change its source details. JobProof should reassess it automatically.</p></div><div class="demo-controls"><button id="load-job" class="button button-primary" type="button"><span aria-hidden="true">+</span> Load another job</button><button id="change-job" class="button button-secondary" type="button" disabled>Change loaded job</button><button id="reset-demo" class="button button-text" type="button">Reset demo <span aria-hidden="true">↺</span></button></div></div>
+                <p id="demo-status" class="demo-status" role="status" aria-live="polite">Ready. The extension supplies the assessments; this page supplies the examples.</p>
+                <div id="loaded-jobs" class="jobs-grid loaded-jobs"></div>
+            </section>
+
+            <details class="presenter-notes">
+                <summary>Presenter notes <span>What these scenarios demonstrate</span></summary>
+                <div class="presenter-notes-body"><p>The security heuristics are expected to score these examples 0, 45, and 100. The saved model produces its own ML score, so the final scores and colors depend on the actual predictions.</p><ol><li><strong>Cisco</strong> pairs an official company domain with a matching recruiter email and ordinary recruitment language.</li><li><strong>Project Coordinator</strong> has an official application destination, but the Gmail recruiter address needs verification.</li><li><strong>Remote Payroll Assistant</strong> combines an HTTP IP address, a lookalike recruiter domain, an upfront payment request, and a banking password request.</li></ol><p>When ML completes, Final = max(Security, ML). The higher component sets the score. If ML is unavailable, the panel clearly shows a security-only fallback. Model output is not a calibrated fraud probability, and green does not establish legitimacy.</p></div>
+            </details>
+        </main>
+        <footer class="site-footer"><p><strong>JobProof</strong> <span aria-hidden="true">/</span> Built to make the next question clearer.</p><span>Two people. One safer job search.</span></footer>
     </div>
 
-    <div class="job-card">
-        <h2 class="job-title">Remote Data Entry</h2>
-        <p class="company">QuickMoney Careers</p>
-        <p class="description">
-            Earn $150,000 with no experience.
-            Immediate hiring. Pay $200 upfront
-            for equipment.
-        </p>
-        <a class="apply-link"
-           href="https://quickmoney.example">
-            Apply Now
-        </a>
-    </div>
-
-    <div class="job-card">
-        <h2 class="job-title">Security Analyst</h2>
-        <p class="company">Cisco</p>
-        <p class="description">
-            Monitor network traffic and investigate
-            security incidents.
-        </p>
-        <p class="recruiter-email"><a href="mailto:jobs@cisco.com">jobs@cisco.com</a></p>
-        <a class="apply-link"
-           href="https://jobs.cisco.com">
-            Apply Now
-        </a>
-    </div>
-
-    <div class="job-card">
-        <h2 class="job-title">Project Coordinator</h2>
-        <p class="company">Microsoft</p>
-        <p class="description">Coordinate project schedules and team communications.</p>
-        <p class="recruiter-email"><a href="mailto:recruiter@gmail.com">recruiter@gmail.com</a></p>
-        <a class="apply-link" href="https://careers.microsoft.com">Apply Now</a>
-    </div>
-
-    <div id="loaded-jobs"></div>
     <template id="dynamic-job">
-        <div class="job-card">
-            <h2 class="job-title">Security Analyst</h2>
+        <article class="job-card">
+            <div class="card-topline"><span class="scenario-number">NEW / SAMPLE LISTING</span><span class="company-avatar" aria-hidden="true">C</span></div>
             <p class="company">Cisco</p>
-            <p class="description">Investigate network incidents and improve security monitoring.</p>
-            <p class="recruiter-email"><a href="mailto:jobs@cisco.com">jobs@cisco.com</a></p>
-            <a class="apply-link" href="https://jobs.cisco.com">Apply Now</a>
-        </div>
+            <h3 class="job-title">Security Analyst</h3>
+            <p class="job-meta">Security operations <span aria-hidden="true">·</span> Full time</p>
+            <p class="description">Investigate network incidents, improve security monitoring, and document response procedures with the security operations team.</p>
+            <details class="role-details"><summary>Role details</summary><p><strong>Company profile</strong></p><p class="company-profile">An enterprise networking and security organization building infrastructure and collaboration products for businesses.</p><p><strong>Requirements</strong></p><p class="requirements">Experience with network monitoring, incident triage, TCP/IP fundamentals, and clear technical documentation.</p><p><strong>Benefits</strong></p><p class="benefits">Competitive salary, medical and dental coverage, paid time off, and professional development.</p></details>
+            <div class="source-details">
+                <div class="source-field"><span class="field-label">Application destination</span><a class="apply-link" href="https://jobs.cisco.com">https://jobs.cisco.com</a></div>
+                <div class="source-field"><span class="field-label">Recruiter email</span><p class="recruiter-email"><a href="mailto:jobs@cisco.com">jobs@cisco.com</a></p></div>
+            </div>
+            <p class="analysis-placeholder">JobProof will display its live assessment here.</p>
+        </article>
     </template>
-    <script src="jobs.js"></script>
 </body>
 </html>

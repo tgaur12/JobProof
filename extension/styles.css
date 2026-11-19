@@ -32,6 +32,49 @@
     font-weight: 700;
 }
 
+.jobproof-scores {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin: 12px 0 8px;
+}
+
+.jobproof-scores > div {
+    min-width: 0;
+    padding: 9px 8px;
+    border: 1px solid #cbd5d1;
+    border-radius: 6px;
+    background: #ffffffa8;
+}
+
+.jobproof-scores dt {
+    color: #4b5563;
+    font-size: 11px;
+}
+
+.jobproof-scores dd {
+    margin: 2px 0 0;
+    font-size: 15px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.jobproof-scores > div:first-child {
+    border-color: #879f93;
+}
+
+.jobproof-formula,
+.jobproof-ml {
+    margin: 8px 0 12px;
+    color: #4b5563;
+    font-size: 12px;
+}
+
+.jobproof-section-label {
+    margin: 14px 0 6px;
+    font-weight: 600;
+}
+
 .jobproof-details summary {
     cursor: pointer;
     font-weight: 600;
@@ -54,10 +97,16 @@
 }
 
 .jobproof-pending,
+.jobproof-coverage,
 .jobproof-notice {
     margin: 10px 0;
     color: #4b5563;
     font-size: 13px;
+}
+
+.jobproof-pending > p {
+    margin: 0;
+    font-weight: 600;
 }
 
 .jobproof-retry {

@@ -1,10 +1,19 @@
 const ANALYSIS_ENDPOINT = "http://127.0.0.1:8000/analyze";
 
+function isScore(value) {
+    return Number.isFinite(value) && value >= 0 && value <= 100;
+}
+
 function isValidResult(result) {
     return result !== null && typeof result === "object"
         && ["green", "yellow", "red"].includes(result.color)
-        && Number.isFinite(result.risk_score)
-        && result.risk_score >= 0 && result.risk_score <= 100
+        && isScore(result.risk_score)
+        && (result.final_score === undefined || isScore(result.final_score))
+        && (result.security_score === undefined || isScore(result.security_score))
+        && (result.ml_score === undefined || result.ml_score === null || isScore(result.ml_score))
+        && (result.score_type === undefined || ["combined", "heuristic"].includes(result.score_type))
+        && (result.score_type !== "combined" || (isScore(result.final_score)
+            && isScore(result.security_score) && isScore(result.ml_score)))
         && typeof result.risk_level === "string"
         && typeof result.notice === "string"
         && Array.isArray(result.findings)

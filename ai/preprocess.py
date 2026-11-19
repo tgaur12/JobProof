@@ -1,7 +1,5 @@
 import html
 import re
-import pandas as pd
-from sklearn.model_selection import train_test_split
 
 CSV_PATH = '/Users/ridhimereddy/Documents/DevHacks/JobProof/ai/data/fake_job_postings.csv'
 TEXT_COLS = ['title', 'company_profile', 'description', 'requirements', 'benefits']
@@ -30,6 +28,10 @@ def combine_text(df):
 
 def load_and_split():
     """Load the CSV, build the text column, return a stratified 80/20 split."""
+    # Training dependencies are unnecessary when serving the saved predictor.
+    import pandas as pd
+    from sklearn.model_selection import train_test_split
+
     df = pd.read_csv(CSV_PATH)
     df = combine_text(df)
     X = df['text']

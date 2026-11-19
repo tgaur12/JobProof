@@ -1,7 +1,8 @@
-"""Exercise the API contract and real security-engine results offline."""
+"""Exercise API integration with real security checks and a controlled ML boundary."""
 
+from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from fastapi.testclient import TestClient
 
@@ -15,6 +16,15 @@ class AnalysisAPITests(unittest.TestCase):
         })
         catalog_patch.start()
         self.addCleanup(catalog_patch.stop)
+        self.predictor = Mock(return_value={
+            "classification": "Likely Legitimate", "prediction": 0,
+            "fraud_probability": 0.0, "ml_score": 0,
+        })
+        self.model_status = Mock(return_value={"status": "ready"})
+        predictor_module = SimpleNamespace(predict_fraud=self.predictor, get_model_status=self.model_status)
+        ml_patch = patch("analysis_service.import_module", return_value=predictor_module)
+        ml_patch.start()
+        self.addCleanup(ml_patch.stop)
         self.client = TestClient(app)
         self.addCleanup(self.client.close)
 
@@ -22,8 +32,9 @@ class AnalysisAPITests(unittest.TestCase):
         response = self.client.get("/health")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["status"], "ok")
-        self.assertEqual(response.json()["analysis_mode"], "security_only")
-        self.assertIn("machine_learning_prediction", response.json()["pending_checks"])
+        self.assertEqual(response.json()["analysis_mode"], "security_and_ml")
+        self.assertEqual(response.json()["machine_learning"]["status"], "ready")
+        self.assertNotIn("machine_learning_prediction", response.json()["pending_checks"])
 
     def test_normal_listing_returns_real_engine_output(self):
         response = self.client.post("/analyze", json={
@@ -38,8 +49,12 @@ class AnalysisAPITests(unittest.TestCase):
         self.assertEqual(result["color"], "green")
         self.assertEqual(result["findings"], [])
         self.assertTrue(result["checks"]["url"]["matches_official_domain"])
-        self.assertEqual(result["analysis_scope"], "url_text_and_email")
-        self.assertIn("machine_learning_prediction", result["pending_checks"])
+        self.assertEqual(result["analysis_scope"], "security_and_ml")
+        self.assertEqual(result["security_score"], 0)
+        self.assertEqual(result["ml_score"], 0)
+        self.assertEqual(result["final_score"], 0)
+        self.assertEqual(result["score_formula"], "max(security_score, ml_score)")
+        self.assertNotIn("machine_learning_prediction", result["pending_checks"])
         self.assertIn("verification", result["notice"])
 
     def test_payment_request_returns_red_with_explanation(self):
@@ -134,6 +149,75 @@ class AnalysisAPITests(unittest.TestCase):
                     "platform": "indeed",
                 })
                 self.assertEqual(response.status_code, 422)
+
+    def test_health_reports_unavailable_model_without_disabling_security(self):
+        self.model_status.return_value = {"status": "unavailable"}
+        with self.assertLogs("analysis_service", level="WARNING"):
+            response = self.client.get("/health")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["status"], "ok")
+        self.assertEqual(response.json()["analysis_mode"], "security_only")
+        self.assertIn("machine_learning_prediction", response.json()["pending_checks"])
+
+    def test_available_ml_prediction_reaches_combined_response(self):
+        self.predictor.return_value = {
+            "classification": "Likely Fraudulent", "prediction": 1,
+            "fraud_probability": 0.82, "ml_score": 82,
+        }
+        response = self.client.post("/analyze", json={
+            "title": "Software Engineer", "company": "Microsoft",
+            "description": "Develop cloud applications.", "url": "https://careers.microsoft.com",
+        })
+        self.assertEqual(response.status_code, 200)
+        result = response.json()
+        self.assertEqual(result["security_score"], 0)
+        self.assertEqual(result["ml_score"], 82)
+        self.assertEqual(result["risk_score"], 82)
+        self.assertEqual(result["final_score"], 82)
+        self.assertEqual(result["color"], "red")
+        self.assertTrue(result["checks"]["machine_learning"]["analyzed"])
+        self.assertNotIn("machine_learning_prediction", result["pending_checks"])
+
+    def test_optional_training_fields_reach_the_predictor(self):
+        payload = {
+            "title": "Engineer", "description": "Develop applications.",
+            "company": "Microsoft", "url": "https://careers.microsoft.com",
+            "company_profile": "An engineering team.",
+            "requirements": "Python experience.", "benefits": "Paid leave.",
+        }
+        response = self.client.post("/analyze", json=payload)
+        self.assertEqual(response.status_code, 200)
+        self.predictor.assert_called_once_with(
+            job_description=payload["description"], title=payload["title"],
+            company_profile=payload["company_profile"], requirements=payload["requirements"],
+            benefits=payload["benefits"],
+        )
+        self.assertEqual(response.json()["checks"]["machine_learning"]["missing_fields"], [])
+
+    def test_optional_training_fields_receive_request_validation(self):
+        for field in ("company_profile", "requirements", "benefits"):
+            for value in ([], 42, "x" * 100001):
+                with self.subTest(field=field, value_type=type(value).__name__):
+                    response = self.client.post("/analyze", json={
+                        "url": "https://careers.microsoft.com", field: value,
+                    })
+                    self.assertEqual(response.status_code, 422)
+
+    def test_prediction_failure_keeps_api_available_with_security_score(self):
+        self.predictor.side_effect = RuntimeError("private model details")
+        with self.assertLogs("analysis_service", level="ERROR"):
+            response = self.client.post("/analyze", json={
+                "title": "Engineer", "description": "Share your banking password with the recruiter.",
+                "company": "Microsoft", "url": "https://careers.microsoft.com",
+            })
+        self.assertEqual(response.status_code, 200)
+        result = response.json()
+        self.assertEqual(result["security_score"], 60)
+        self.assertEqual(result["risk_score"], 60)
+        self.assertIsNone(result["ml_score"])
+        self.assertFalse(result["checks"]["machine_learning"]["analyzed"])
+        self.assertIn("machine_learning_prediction", result["pending_checks"])
+        self.assertNotIn("private model details", response.text)
 
 
 if __name__ == "__main__":

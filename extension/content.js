@@ -20,6 +20,17 @@
         url_shortener_detection: "shortener catalog",
         application_url_analysis: "application destination"
     };
+    const PENDING_EXPLANATIONS = {
+        domain_registration_verification: "Domain registration and ownership have not been verified.",
+        recruiter_mailbox_verification: "Recruiter mailbox ownership has not been verified. Format and domain checks do not establish ownership.",
+        machine_learning_prediction: "ML prediction was unavailable for this listing. The displayed result uses the security checks that completed.",
+        job_description_analysis: "The full job description was missing or could not be matched to this listing.",
+        social_engineering_detection: "Job text was unavailable for recruitment-language checks.",
+        recruiter_email_analysis: "No recruiter email address was supplied or extracted from this listing.",
+        company_domain_reference: "No trusted company-domain reference is configured for this company.",
+        url_shortener_detection: "The shortener catalog could not establish whether this URL uses a shortener.",
+        application_url_analysis: "The external application destination was unavailable for URL checks."
+    };
 
     function extractJob(card) {
         if (indeed) {
@@ -46,22 +57,58 @@
             }
         }
 
+        const job = {
+            title: card.querySelector(".job-title")?.textContent.trim() || "",
+            company: card.querySelector(".company")?.textContent.trim() || "",
+            description: card.querySelector(".description")?.textContent.trim() || "",
+            url: applyLink.href,
+            recruiter_email: recruiterEmail
+        };
+        // Optional ML fields are supplied only when the listing actually has them.
+        for (const [field, selector] of Object.entries({
+            company_profile: ".company-profile", requirements: ".requirements", benefits: ".benefits"
+        })) {
+            const node = card.querySelector(selector);
+            if (node) job[field] = node.textContent.trim();
+        }
+
         return {
-            job: {
-                title: card.querySelector(".job-title")?.textContent.trim() || "",
-                company: card.querySelector(".company")?.textContent.trim() || "",
-                description: card.querySelector(".description")?.textContent.trim() || "",
-                url: applyLink.href,
-                recruiter_email: recruiterEmail
-            },
+            job,
             emailWarning
         };
     }
 
     function renderResult(card, body, status, result) {
         card.dataset.jobproofRisk = result.color;
-        const label = result.assessment_status === "preliminary" ? "JobProof preliminary" : "JobProof security";
-        status.textContent = `${label} · ${result.risk_level} · ${result.risk_score}/100`;
+        const finalScore = result.final_score ?? result.risk_score;
+        const securityScore = result.security_score ?? result.risk_score;
+        const mlScore = Number.isFinite(result.ml_score) ? result.ml_score : null;
+        const combined = result.score_type === "combined" && mlScore !== null;
+        const machineLearning = result.checks?.machine_learning;
+        const label = result.assessment_status === "preliminary" ? "JobProof preliminary"
+            : combined ? "JobProof final" : "JobProof security";
+        status.textContent = `${label} · ${result.risk_level} · ${finalScore}/100`;
+
+        const scores = document.createElement("dl");
+        scores.className = "jobproof-scores";
+        for (const [name, value] of [["Final", finalScore], ["Security", securityScore], ["ML", mlScore]]) {
+            const group = document.createElement("div");
+            const term = document.createElement("dt");
+            term.textContent = `${name} score`;
+            const score = document.createElement("dd");
+            score.textContent = value === null ? "Unavailable" : `${value}/100`;
+            group.append(term, score);
+            scores.append(group);
+        }
+        const formula = document.createElement("p");
+        formula.className = "jobproof-formula";
+        formula.textContent = combined
+            ? "Final = max(Security, ML). The higher component sets the score. This is a risk indicator, not a calibrated fraud probability."
+            : "Security-only fallback: Final = Security. ML is unavailable, so no ML score was substituted.";
+        if (result.assessment_status === "preliminary") {
+            formula.textContent += " Incomplete listing coverage can keep the result in Needs verification.";
+        }
+        body.append(scores, formula);
 
         const details = document.createElement("details");
         details.className = "jobproof-details";
@@ -82,6 +129,41 @@
         });
         details.append(summary);
 
+        const analyzed = [];
+        if (result.checks?.url?.analyzed) analyzed.push("application URL");
+        if (result.checks?.social_engineering?.analyzed) analyzed.push("recruitment language");
+        if (result.checks?.email?.analyzed) analyzed.push("recruiter email");
+        if (analyzed.length > 0) {
+            const coverage = document.createElement("p");
+            coverage.className = "jobproof-coverage";
+            coverage.textContent = `Analyzed ${analyzed.join(", ")}. The security score uses cybersecurity heuristics.`;
+            details.append(coverage);
+        }
+
+        const mlExplanation = document.createElement("p");
+        mlExplanation.className = "jobproof-ml";
+        if (combined) {
+            mlExplanation.textContent = "ML prediction completed using the saved model.";
+        } else {
+            const reason = typeof machineLearning?.message === "string" ? machineLearning.message
+                : typeof machineLearning?.reason === "string" ? machineLearning.reason
+                : machineLearning?.status ? machineLearning.status.replaceAll("_", " ")
+                : "No ML prediction was supplied by the analysis service.";
+            mlExplanation.textContent = `ML unavailable. ${reason}`;
+        }
+        details.append(mlExplanation);
+        if (Array.isArray(machineLearning?.missing_fields) && machineLearning.missing_fields.length > 0) {
+            const missing = document.createElement("p");
+            missing.className = "jobproof-pending";
+            missing.textContent = `Partial ML input: missing ${machineLearning.missing_fields.map(field => String(field).replaceAll("_", " ")).join(", ")}. Interpret the model score with this limitation.`;
+            details.append(missing);
+        }
+
+        const findingsLabel = document.createElement("p");
+        findingsLabel.className = "jobproof-section-label";
+        findingsLabel.textContent = "Cybersecurity findings";
+        details.append(findingsLabel);
+
         if (result.findings.length > 0) {
             const reasons = document.createElement("ul");
             for (const finding of result.findings) {
@@ -96,13 +178,25 @@
                 reasons.append(item);
             }
             details.append(reasons);
+        } else {
+            const explanation = document.createElement("p");
+            explanation.textContent = "No cybersecurity warning signs were found in the available data.";
+            details.append(explanation);
         }
 
         if (result.pending_checks.length > 0) {
-            const pending = document.createElement("p");
+            const pending = document.createElement("div");
             pending.className = "jobproof-pending";
-            const names = result.pending_checks.map(name => PENDING_LABELS[name] || name.replaceAll("_", " "));
-            pending.textContent = `Pending checks include ${names.join(", ")}.`;
+            const label = document.createElement("p");
+            label.textContent = "Checks not completed";
+            const checks = document.createElement("ul");
+            for (const name of result.pending_checks) {
+                const check = document.createElement("li");
+                check.textContent = PENDING_EXPLANATIONS[name]
+                    || `${PENDING_LABELS[name] || name.replaceAll("_", " ")} is pending.`;
+                checks.append(check);
+            }
+            pending.append(label, checks);
             details.append(pending);
         }
 

@@ -1,9 +1,10 @@
-"""Expose the current cybersecurity engine to the Chrome extension."""
+"""Expose the combined cybersecurity and ML assessment to the extension."""
 
 from fastapi import FastAPI
 from pydantic import BaseModel, Field, model_validator
 
-from risk_engine import analyze_job, validate_listing_url
+from analysis_service import analyze_job_with_ml, get_analysis_status
+from risk_engine import validate_listing_url
 
 
 app = FastAPI(title="JobProof API")
@@ -17,6 +18,9 @@ class JobListing(BaseModel):
     title: str = Field(default="", max_length=500)
     company: str = Field(default="", max_length=500)
     description: str = Field(default="", max_length=100000)
+    company_profile: str = Field(default="", max_length=100000)
+    requirements: str = Field(default="", max_length=100000)
+    benefits: str = Field(default="", max_length=100000)
     recruiter_email: str | None = Field(default=None, max_length=320)
     description_complete: bool = Field(default=True, strict=True)
 
@@ -31,15 +35,11 @@ class JobListing(BaseModel):
 
 @app.get("/health")
 def health() -> dict:
-    return {
-        "status": "ok",
-        "analysis_mode": "security_only",
-        "pending_checks": ["machine_learning_prediction"],
-    }
+    return get_analysis_status()
 
 
 @app.post("/analyze")
 def analyze(job: JobListing) -> dict:
     # A regular def lets FastAPI run potentially blocking catalog refreshes in
     # its worker threadpool while the event loop continues serving requests.
-    return analyze_job(job.model_dump())
+    return analyze_job_with_ml(job.model_dump())
